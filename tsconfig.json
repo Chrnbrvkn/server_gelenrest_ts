@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "commonjs",
+    "target": "es2017",
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["express"]
+  },
+  "include": ["src/**/*"]
+}
