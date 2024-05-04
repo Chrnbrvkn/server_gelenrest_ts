@@ -12,7 +12,7 @@ import {
 @Table({
   timestamps: true,
   tableName: 'houses',
-  modelName: 'Houses',
+  modelName: 'House',
   paranoid: true,
 })
 export class Houses extends Model<IHouses> {
@@ -20,17 +20,20 @@ export class Houses extends Model<IHouses> {
   @Column({
     type: DataType.INTEGER,
     primaryKey: true, 
-    autoIncrement: true
+    autoIncrement: true,
+    allowNull: false
   })
   declare id: number;
 
   @Column({
-    type: DataType.STRING  
+    type: DataType.STRING,
+    allowNull: false 
   })
   declare name: string;
 
   @Column({
-    type: DataType.STRING  
+    type: DataType.STRING,
+    allowNull: false  
   })
   declare address: string;
 
@@ -38,28 +41,29 @@ export class Houses extends Model<IHouses> {
     type: DataType.STRING,
     allowNull: true,
   })
-  declare description_1: string;
+  declare description_1?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare description_2: string;
+  declare description_2?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare description_3: string;
+  declare description_3?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare description_4: string;
+  declare description_4?: string;
 
   @Column({
-    type: DataType.INTEGER
+    type: DataType.INTEGER,
+    allowNull: false
   })
   declare roomCount: number;
 
@@ -67,163 +71,163 @@ export class Houses extends Model<IHouses> {
     type: DataType.STRING,
     allowNull: true,
   })
-  declare roomCategories: string;
+  declare roomCategories?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare meals: string;
+  declare meal?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare bookingConditions: string;
+  declare bookingConditions?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare checkoutTime: string;
+  declare checkoutTime?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare timeToSea: string;
+  declare timeToSea?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare timeToMarket: string;
+  declare timeToMarket?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare timeToCafe: string;
+  declare timeToCafe?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare timeToBusStop: string;
+  declare timeToBusStop?: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare timeToBusCityCenter: string;
+  declare timeToBusCityCenter?: string;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare internet: boolean;
+  declare internet?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare allHouseBooking: boolean;
+  declare allHouseBooking?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare tv: boolean;
+  declare tv?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare pool: boolean;
+  declare pool?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare babyCot: boolean;
+  declare babyCot?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare yard: boolean;
+  declare yard?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare dishwasher: boolean;
+  declare dishwasher?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare washingMachine: boolean;
+  declare washingMachine?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare diningArea: boolean;
+  declare diningArea?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare freeParking: boolean;
+  declare freeParking?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare roomCleaning: boolean;
+  declare roomCleaning?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare beddingChange: boolean;
+  declare beddingChange?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare sharedKitchen: boolean;
+  declare sharedKitchen?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare iron: boolean;
+  declare iron?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare bbqGrill: boolean;
+  declare bbqGrill?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare refrigerator: boolean;
+  declare refrigerator?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare transferService: boolean;
+  declare transferService?: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: true,
   })
-  declare laundryService: boolean;
+  declare laundryService?: boolean;
   
   @CreatedAt
   declare createdAt: Date;

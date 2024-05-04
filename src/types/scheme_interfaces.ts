@@ -26,7 +26,7 @@ interface IHouses {
   description_4?: string | null;
   roomCount: number;
   roomCategories?: string | null;
-  meals?: string | null;
+  meal?: string | null;
   bookingConditions?: string | null;
   checkoutTime?: string | null;
   timeToSea?: string | null;
