@@ -1,4 +1,5 @@
 import { IAparts } from '../types/scheme_interfaces';
+import { ApartsPictures } from './ApartsPictures';
 import {
   Table,
   Column,
@@ -6,6 +7,7 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  HasMany,
 } from 'sequelize-typescript';
 
 @Table({
@@ -15,29 +17,33 @@ import {
   paranoid: true,
 })
 export class Aparts extends Model<IAparts> {
+  
+  @HasMany(() => ApartsPictures, { onDelete: 'CASCADE' })
+  declare apartPictures: ApartsPictures[];
+
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    allowNull: false
+    allowNull: false,
   })
   declare id: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false
+    allowNull: false,
   })
   declare name: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false
+    allowNull: false,
   })
   declare address: string;
 
   @Column({
     type: DataType.DOUBLE,
-    allowNull: false
+    allowNull: false,
   })
   declare price: number;
 
@@ -67,13 +73,13 @@ export class Aparts extends Model<IAparts> {
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false
+    allowNull: false,
   })
   declare bedCount: number;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false
+    allowNull: false,
   })
   declare roomCount: number;
 
@@ -85,25 +91,25 @@ export class Aparts extends Model<IAparts> {
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false
+    allowNull: false,
   })
   declare level: number;
 
   @Column({
     type: DataType.ENUM('в номере', 'отдельно'),
-    allowNull: false
+    allowNull: false,
   })
   declare meal: 'в номере' | 'отдельно';
 
   @Column({
     type: DataType.ENUM('в номере', 'на этаже'),
-    allowNull: false
+    allowNull: false,
   })
   declare bathroom: 'в номере' | 'на этаже';
 
   @Column({
     type: DataType.ENUM('ванна', 'душ'),
-    allowNull: false
+    allowNull: false,
   })
   declare bathType: 'ванна' | 'душ';
 
@@ -268,4 +274,5 @@ export class Aparts extends Model<IAparts> {
 
   @UpdatedAt
   declare updatedAt: Date;
+
 }

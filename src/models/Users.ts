@@ -7,7 +7,11 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  BelongsToMany,
 } from 'sequelize-typescript';
+import { UserRoles } from './UserRoles';
+import { Roles } from './Roles';
+
 
 @Table({
   timestamps: true,
@@ -15,7 +19,10 @@ import {
   modelName: 'Users',
   paranoid: true,
 })
-export class Users extends Model<IUsers>{
+export class Users extends Model<IUsers> {
+
+  @BelongsToMany(() => Roles, () => UserRoles)
+  declare roles: Roles[];
 
   @Column({
     type: DataType.INTEGER,
@@ -30,14 +37,14 @@ export class Users extends Model<IUsers>{
     unique: true,
     validate: {
       isEmail: true,
-      notEmpty: true
-    }
+      notEmpty: true,
+    },
   })
   declare email: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false
+    allowNull: false,
   })
   declare password: string;
 
@@ -50,7 +57,7 @@ export class Users extends Model<IUsers>{
     type: DataType.STRING,
   })
   declare surname: string;
-  
+
   @CreatedAt
   declare createdAt: Date;
 

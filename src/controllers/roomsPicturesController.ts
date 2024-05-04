@@ -1,9 +1,8 @@
-import { RoomsPictures } from '../models/models';
-import fs from 'fs';
-import path from 'path';
+import { RoomsPictures } from "../models/models";
+import fs from "fs";
+import path from "path";
 
 export class RoomsPicturesController {
-
   static async getAllPictures(req, res) {
     try {
       const allPictures = await RoomsPictures.findAll();
@@ -11,7 +10,6 @@ export class RoomsPicturesController {
     } catch (e) {
       console.error(e);
       return res.status(500).json({ error: e.message });
-
     }
   }
 
@@ -19,7 +17,7 @@ export class RoomsPicturesController {
     const { roomId } = req.params;
     try {
       const pictures = await RoomsPictures.findAll({
-        where: { roomId: roomId }
+        where: { roomId: roomId },
       });
       if (pictures.length === 0) {
         return res.json([]);
@@ -38,11 +36,11 @@ export class RoomsPicturesController {
       const picture = await RoomsPictures.findOne({
         where: {
           id: imageId,
-          roomId: roomId
-        }
+          roomId: roomId,
+        },
       });
       if (!picture) {
-        return res.status(404).json({ error: 'Picture not found' });
+        return res.status(404).json({ error: "Picture not found" });
       }
       return res.json(picture);
     } catch (e) {
@@ -55,18 +53,20 @@ export class RoomsPicturesController {
     try {
       const { roomId } = req.params;
       if (!roomId) {
-        return res.status(400).json({ error: 'Room ID is required' });
+        return res.status(400).json({ error: "Room ID is required" });
       }
       if (!req.processedFiles || req.processedFiles.length === 0) {
-        return res.status(400).json({ error: 'No processed files found' });
+        return res.status(400).json({ error: "No processed files found" });
       }
-      const pictureUrls = await Promise.all(req.processedFiles.map(async ({ filename, path }) => {
-        const picture = await RoomsPictures.create({
-          url: path,
-          roomId: roomId
-        });
-        return picture.url;
-      }));
+      const pictureUrls = await Promise.all(
+        req.processedFiles.map(async ({ filename, path }) => {
+          const picture = await RoomsPictures.create({
+            url: path,
+            roomId: roomId,
+          });
+          return picture.url;
+        })
+      );
 
       return res.json(pictureUrls);
     } catch (e) {
@@ -79,23 +79,21 @@ export class RoomsPicturesController {
     try {
       const { roomId, imageId } = req.params;
       if (!imageId) {
-        return res.status(400).json({ error: 'ID not specified' });
+        return res.status(400).json({ error: "ID not specified" });
       }
       const picture = await RoomsPictures.findByPk(imageId);
       if (!picture || picture.roomId !== parseInt(roomId, 10)) {
-        return res.status(404).json({ error: 'Picture not found' });
+        return res.status(404).json({ error: "Picture not found" });
       }
 
-      const filePath = path.join(__dirname, '..', '..', picture.url);
+      const filePath = path.join(__dirname, "..", "..", picture.url);
       await picture.destroy();
 
       await fs.promises.unlink(filePath);
-      res.json({ message: 'Picture deleted successfully' });
+      res.json({ message: "Picture deleted successfully" });
     } catch (e) {
       console.error("Error deleting file:", e);
       return res.status(500).json({ error: e.message });
     }
   }
-
 }
-

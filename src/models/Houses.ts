@@ -7,7 +7,10 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  HasMany,
 } from 'sequelize-typescript';
+import { HousesPictures } from './HousesPictures';
+import { Rooms } from './Rooms';
 
 @Table({
   timestamps: true,
@@ -16,24 +19,30 @@ import {
   paranoid: true,
 })
 export class Houses extends Model<IHouses> {
+  
+  @HasMany(() => HousesPictures, { onDelete: 'CASCADE' })
+  declare housesPictures: HousesPictures[];
 
+  @HasMany(() => Rooms, { onDelete: 'CASCADE' })
+  declare housesRooms: Rooms[];
+  
   @Column({
     type: DataType.INTEGER,
-    primaryKey: true, 
+    primaryKey: true,
     autoIncrement: true,
-    allowNull: false
+    allowNull: false,
   })
   declare id: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false 
+    allowNull: false,
   })
   declare name: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false  
+    allowNull: false,
   })
   declare address: string;
 
@@ -63,7 +72,7 @@ export class Houses extends Model<IHouses> {
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: false
+    allowNull: false,
   })
   declare roomCount: number;
 
@@ -228,10 +237,12 @@ export class Houses extends Model<IHouses> {
     allowNull: true,
   })
   declare laundryService?: boolean;
-  
+
   @CreatedAt
   declare createdAt: Date;
 
   @UpdatedAt
   declare updatedAt: Date;
+
+
 }

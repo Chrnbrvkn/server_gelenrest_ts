@@ -1,5 +1,5 @@
-import sequelize from '../db';
-import { DataTypes } from 'sequelize';
+import { IApartsPictures } from '../types/scheme_interfaces';
+import { Aparts } from './Aparts';
 import {
   Table,
   Column,
@@ -7,4 +7,47 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
+
+@Table({
+  timestamps: true,
+  tableName: 'apartPictures',
+  modelName: 'ApartsPictures',
+  paranoid: true,
+})
+export class ApartsPictures extends Model<IApartsPictures> {
+
+  @BelongsTo(() => Aparts)
+  declare apart: Aparts;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    autoIncrement: true,
+    unique: true,
+    primaryKey: true,
+  })
+  declare id: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  declare url: string;
+
+  @ForeignKey(() => Aparts)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare apartId: number;
+
+  @CreatedAt
+  declare createdAt: Date;
+
+  @UpdatedAt
+  declare updatedAt: Date;
+
+}

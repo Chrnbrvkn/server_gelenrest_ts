@@ -1,8 +1,8 @@
 // const ApiError = require('../error/ApiError');
-import path from 'path';
-import fs from 'fs';
-import { Aparts, ApartsPictures } from '../models/models';
-import { Request, Response } from 'express';
+import path from "path";
+import fs from "fs";
+import { Aparts, ApartsPictures } from "../models/models";
+import { Request, Response } from "express";
 
 export class ApartController {
   static async getAparts(req: Request, res: Response) {
@@ -22,11 +22,11 @@ export class ApartController {
     try {
       const { apartId } = req.params;
       if (!apartId) {
-        return res.status(400).json({ error: 'ID not specified' });
+        return res.status(400).json({ error: "ID not specified" });
       }
       const apart = await Aparts.findByPk(apartId);
       if (!apart) {
-        return res.status(404).json({ error: 'Apart not found' });
+        return res.status(404).json({ error: "Apart not found" });
       }
       return res.json(apart);
     } catch (e) {
@@ -49,11 +49,11 @@ export class ApartController {
     try {
       const { apartId } = req.params;
       if (!apartId) {
-        return res.status(400).json({ error: 'ID not specified' });
+        return res.status(400).json({ error: "ID not specified" });
       }
       const apart = await Aparts.findByPk(apartId);
       if (!apart) {
-        return res.status(404).json({ error: 'Apart not found' });
+        return res.status(404).json({ error: "Apart not found" });
       }
       await apart.update(req.body);
       const updatedApart = await Aparts.findByPk(apartId);
@@ -68,11 +68,11 @@ export class ApartController {
     try {
       const { apartId } = req.params;
       if (!apartId) {
-        return res.status(400).json({ error: 'ID not specified' });
+        return res.status(400).json({ error: "ID not specified" });
       }
       const apart = await Aparts.findByPk(apartId);
       if (!apart) {
-        return res.status(404).json({ error: 'Apart not found' });
+        return res.status(404).json({ error: "Apart not found" });
       }
 
       // Находим и удаляем все связанные картинки
@@ -83,20 +83,20 @@ export class ApartController {
         pictures.map(async (picture) => {
           const filePath = path.join(
             __dirname,
-            '..',
-            '..',
-            'public/uploads/apartsPictures',
-            picture.url.split('/').pop()
+            "..",
+            "..",
+            "public/uploads/apartsPictures",
+            picture.url.split("/").pop()
           );
           await fs.promises
             .unlink(filePath)
-            .catch((e) => console.error('Error deleting file:', e));
+            .catch((e) => console.error("Error deleting file:", e));
           await picture.destroy();
         })
       );
 
       await apart.destroy();
-      return res.json({ message: 'Apart deleted' });
+      return res.json({ message: "Apart deleted" });
     } catch (e) {
       console.error(e);
       return res.status(500).json({ error: e.message });

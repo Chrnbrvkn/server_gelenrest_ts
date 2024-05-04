@@ -9,30 +9,33 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  ForeignKey,
 } from 'sequelize-typescript';
 
 @Table({
   timestamps: true,
   tableName: 'userRoles',
-  modelName: 'userRoles'
+  modelName: 'userRoles',
 })
-export class UserRoles extends Model<IUserRoles>{
+export class UserRoles extends Model<IUserRoles> {
 
+  @ForeignKey(() => Users)
   @Column({
     type: DataType.INTEGER,
     references: {
       model: Users,
-      key: 'id'
-    }
+      key: 'id',
+    },  
   })
   declare userId: number;
 
+  @ForeignKey(() => Roles)
   @Column({
     type: DataType.INTEGER,
     references: {
       model: Roles,
-      key: 'id'
-    }
+      key: 'id',
+    },
   })
   declare roleId: number;
 
@@ -41,5 +44,4 @@ export class UserRoles extends Model<IUserRoles>{
 
   @UpdatedAt
   declare updatedAt: Date;
-  
 }

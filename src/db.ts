@@ -1,4 +1,5 @@
-import {Sequelize} from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
+import models from './models/models';
 
 const dbName = process.env.DB_NAME || 'default_db_name';
 const dbUser = process.env.DB_USER || 'default_user';
@@ -8,11 +9,13 @@ const dbPort = parseInt(process.env.DB_PORT || '3306');
 
 export default new Sequelize(
   dbName, 
-  dbUser,
-  dbPassword,
+  dbUser, 
+  dbPassword, 
   {
     dialect: 'mysql',
     host: dbHost,
-    port: dbPort
+    port: dbPort,
+    logging: false,
+    models: Object.values(models)
   }
 );

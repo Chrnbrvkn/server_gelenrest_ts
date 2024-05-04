@@ -1,5 +1,3 @@
-// import sequelize from '../db';
-// import { DataTypes } from 'sequelize';
 import { IRoles } from '../types/scheme_interfaces';
 import {
   Table,
@@ -8,14 +6,20 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  BelongsToMany,
 } from 'sequelize-typescript';
+import { UserRoles } from './UserRoles';
+import { Users } from './Users';
 
 @Table({
   timestamps: true,
   tableName: 'roles',
   modelName: 'Roles',
 })
-export class Roles extends Model<IRoles>{
+export class Roles extends Model<IRoles> {
+
+  @BelongsToMany(() => Users, () => UserRoles)
+  declare users: Users[];
 
   @Column({
     type: DataType.INTEGER,
@@ -27,7 +31,7 @@ export class Roles extends Model<IRoles>{
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
   })
   declare value: string;
 
@@ -36,5 +40,4 @@ export class Roles extends Model<IRoles>{
 
   @UpdatedAt
   declare updatedAt: Date;
-
 }
