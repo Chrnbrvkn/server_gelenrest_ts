@@ -1,7 +1,6 @@
 // import sequelize from '../db';
 import { Users } from './Users';
 import { Roles } from './Roles';
-import { IUserRoles } from '../types/scheme_interfaces';
 import {
   Table,
   Column,
@@ -17,7 +16,7 @@ import {
   tableName: 'userRoles',
   modelName: 'userRoles',
 })
-export class UserRoles extends Model<IUserRoles> {
+export class UserRoles extends Model {
 
   @ForeignKey(() => Users)
   @Column({

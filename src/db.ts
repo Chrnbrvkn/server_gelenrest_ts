@@ -15,7 +15,7 @@ export default new Sequelize(
     dialect: 'mysql',
     host: dbHost,
     port: dbPort,
-    logging: false,
+    logging: true,
     models: Object.values(models)
   }
 );

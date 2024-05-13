@@ -1,30 +1,39 @@
-import { Bookings } from "../models/models";
-import { sendToTelegramBot } from "./tgBotController";
-import { Request, Response } from "express";
+import { BadRequestError, NotFoundError } from '../errors/ApiError';
+import { Bookings } from '../models/Bookings';
+import { sendToTelegramBot } from './tgBotController';
+import { NextFunction, Request, Response } from 'express';
 
 export class BookingController {
-  static async getReservedDates(req: Request, res: Response) {
+  static async getReservedDates(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const bookings = await Bookings.findAll({
         attributes: [
-          "houseId",
-          "roomId",
-          "apartId",
-          "checkInDate",
-          "checkOutDate",
+          'houseId',
+          'roomId',
+          'apartId',
+          'checkInDate',
+          'checkOutDate',
         ],
         where: {
-          status: "Подтверждён",
+          status: 'Подтверждён',
         },
       });
+
+      if (bookings.length === 0) {
+        return res.json([]);
+      }
+
       return res.json(bookings);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async getBookings(req: Request, res: Response) {
+  static async getBookings(req: Request, res: Response, next: NextFunction) {
     try {
       const bookings = await Bookings.findAll();
       if (bookings.length === 0) {
@@ -32,89 +41,86 @@ export class BookingController {
       }
       return res.json(bookings);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async getOneBooking(req: Request, res: Response) {
+  static async getOneBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const { bookingId } = req.params;
       if (!bookingId) {
-        return res.status(400).json({ error: "ID not specified" });
+        throw new BadRequestError(`Не верный ID квартиры: ${bookingId}`);
       }
+
       const booking = await Bookings.findByPk(bookingId);
       if (!booking) {
-        return res.status(404).json({ error: "Booking not found" });
+        throw new NotFoundError(`Бронирование с ID: ${bookingId} не найдена.`);
       }
+
       return res.json(booking);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async createBooking(req: Request, res: Response) {
+  static async createBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const booking = await Bookings.create({ ...req.body });
 
       const bookingInfo = `Новая бронь ${booking.id}:
       \nИмя: ${req.body.guestName}
       \nНомер: ${
-        req.body.houseName === ""
-          ? req.body.itemName
-          : req.body.houseName + " " + req.body.itemName
-      }
+  req.body.houseName === ''
+    ? req.body.itemName
+    : req.body.houseName + ' ' + req.body.itemName
+}
       \nАдрес: ${req.body.address}
       \nТелефон: ${req.body.guestContact}
       \nДата: ${req.body.checkInDate.slice(
-        0,
-        10
-      )} - ${req.body.checkOutDate.slice(0, 10)}`;
+    0,
+    10
+  )} - ${req.body.checkOutDate.slice(0, 10)}`;
 
-      await sendToTelegramBot(bookingInfo);
+      await sendToTelegramBot(bookingInfo, next);
       return res.json(booking);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async updateBooking(req: Request, res: Response) {
+  static async updateBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const { bookingId } = req.params;
       if (!bookingId) {
-        return res.status(400).json({ error: "ID not specified" });
+        throw new BadRequestError(`Не верный ID бронирования: ${bookingId}`);
       }
       const booking = await Bookings.findByPk(bookingId);
       if (!booking) {
-        return res.status(404).json({ error: "Booking not found" });
+        throw new NotFoundError(`Бронирование с ID: ${bookingId} не найдена.`);
       }
 
       await booking.update(req.body);
       const updatedBooking = await Bookings.findByPk(bookingId);
       return res.json(updatedBooking);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async deleteBooking(req: Request, res: Response) {
+  static async deleteBooking(req: Request, res: Response, next: NextFunction) {
     try {
       const { bookingId } = req.params;
       if (!bookingId) {
-        return res.status(400).json({ error: "ID not specified" });
+        throw new BadRequestError(`Не верный ID бронирования: ${bookingId}`);
       }
       const booking = await Bookings.findByPk(bookingId);
       if (!booking) {
-        return res.status(404).json({ error: "Booking not found" });
+        throw new NotFoundError(`Бронирование с ID: ${bookingId} не найдена.`);
       }
       await booking.destroy();
-      return res.json({ message: "Booking deleted" });
+      return res.json({ message: 'Booking deleted' });
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 }

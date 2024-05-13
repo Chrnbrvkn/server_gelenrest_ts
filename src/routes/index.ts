@@ -1,9 +1,10 @@
-import Router from 'express';
-const router = new Router();
+import express from 'express';
 
-const DEV_ACCESS = process.env.DEV_ACCESS.split(',');
+export const router = express.Router();
+
+const DEV_ACCESS = process.env.DEV_ACCESS ? process.env.DEV_ACCESS.split(',') as IRole[]: [];
 // const MAIN_ACCESS = process.env.MAIN_ACCESS.split(',');
-const ADMIN_ACCESS = process.env.ADMIN_ACCESS.split(',');
+const ADMIN_ACCESS  = process.env.ADMIN_ACCESS ? process.env.ADMIN_ACCESS.split(',') as IRole[]: [];
 // const USER_ACCESS = process.env.USER_ACCESS.split(',');
 
 import { upload, processAndSaveImage } from '../middleware/multerConfig.js';
@@ -11,17 +12,18 @@ import { verifyToken } from '../middleware/verifyToken.js';
 import { checkRole } from '../middleware/checkRole.js';
 
 import { AuthController } from '../controllers/authController.js';
-import { UserController } from '../controllers/userController';
-import { HouseController } from '../controllers/houseController';
-import { ApartController } from '../controllers/apartController';
-import { RoomController } from '../controllers/roomController';
-import { HousesPicturesController } from '../controllers/housesPicturesController';
-import { ApartsPicturesController } from '../controllers/apartsPicturesController';
-import { RoomsPicturesController } from '../controllers/roomsPicturesController';
+import { UserController } from '../controllers/userController.js';
+import { HouseController } from '../controllers/houseController.js';
+import { ApartController } from '../controllers/apartController.js';
+import { RoomController } from '../controllers/roomController.js';
+import { HousesPicturesController } from '../controllers/housesPicturesController.js';
+import { ApartsPicturesController } from '../controllers/apartsPicturesController.js';
+import { RoomsPicturesController } from '../controllers/roomsPicturesController.js';
 
-import { BookingController } from '../controllers/bookingController';
+import { BookingController } from '../controllers/bookingController.js';
 
-import { sendModalCallback } from '../controllers/tgBotController';
+import { sendModalCallback } from '../controllers/tgBotController.js';
+
 
 
 
@@ -90,4 +92,3 @@ router.patch('/booking/:bookingId', verifyToken, checkRole(ADMIN_ACCESS), Bookin
 router.delete('/booking/:bookingId', verifyToken, checkRole(ADMIN_ACCESS), BookingController.deleteBooking);
 // tgBot
 router.post('/callback-modal', sendModalCallback);
-module.exports = router;

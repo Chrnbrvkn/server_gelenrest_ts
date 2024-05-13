@@ -1,4 +1,3 @@
-import { IHouses } from '../types/scheme_interfaces';
 
 import {
   Table,
@@ -18,7 +17,7 @@ import { Rooms } from './Rooms';
   modelName: 'House',
   paranoid: true,
 })
-export class Houses extends Model<IHouses> {
+export class Houses extends Model {
   
   @HasMany(() => HousesPictures, { onDelete: 'CASCADE' })
   declare housesPictures: HousesPictures[];

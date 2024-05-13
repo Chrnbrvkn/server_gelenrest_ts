@@ -1,0 +1,88 @@
+import { SequelizeBaseError } from './interfaceError';
+
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class TransactionError extends ApiError {
+  constructor(message: string){
+    super(message, 400);
+  }
+}
+export class BadRequestError extends ApiError {
+  constructor(message: string ) {
+  //   this.message: string = '';
+  //   message = `Bad Request. Error Name: ${e.name};`;
+
+  //   if (e.errors) {
+  //     e.errors.forEach((err) => {
+  //       message += `\nMessage: ${err.message}; 
+  //       Type: ${err.type}; 
+  //       Path: ${err.path}; 
+  //       Value: ${err.value}.`;
+  //     });
+  //   }
+  //   if (e.parent) {
+  //     message += `\nCaused by: ${e.parent.name}; 
+  //     Message: ${e.parent.message}; 
+  //     SQL: ${e.parent.sql};`;
+  //     if (e.parent.error) {
+  //       message += ` Error Detail: ${e.parent.error};`;
+  //     }
+  //   }
+
+  //   console.log(e);
+    super(`Bad Request. ${message}.`, 400);
+  }
+}
+
+export class WrongBodyError extends BadRequestError {
+  constructor(message: string) {
+    super(`Wrong request body: ${message}`);
+  }
+}
+export class WrongIdError extends BadRequestError {
+  constructor(message: string) {
+    super(`Wrong id: ${message}`);
+  }
+}
+
+export class UnauthorizedError extends ApiError {
+  constructor(message: string = 'Unauthorized!') {
+    super(message, 401);
+  }
+}
+
+export class ForbiddenError extends ApiError {
+  constructor(message: string = 'Forbidden!') {
+    super(message, 403);
+  }
+}
+export class NotFoundError extends ApiError {
+  constructor(message: string) {
+    super(`Not found ${message}.`, 404);
+  }
+}
+
+export class InternalServerError extends ApiError {
+  constructor(message: string) {
+    super(`Internal server error with ${message}.`, 500);
+  }
+}
+
+export class DatabaseError extends InternalServerError {
+  constructor(message: string) {
+    super(`database: ${message}.`);
+  }
+}
+
+export class FileError extends InternalServerError {
+  constructor(message: string) {
+    super(`file: ${message}.`);
+  }
+}

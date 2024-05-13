@@ -1,4 +1,3 @@
-import { IRoles } from '../types/scheme_interfaces';
 import {
   Table,
   Column,
@@ -16,7 +15,7 @@ import { Users } from './Users';
   tableName: 'roles',
   modelName: 'Roles',
 })
-export class Roles extends Model<IRoles> {
+export class Roles extends Model {
 
   @BelongsToMany(() => Users, () => UserRoles)
   declare users: Users[];

@@ -1,4 +1,3 @@
-import { IRooms } from '../types/scheme_interfaces';
 import {
   Table,
   Column,
@@ -14,7 +13,7 @@ import {
   modelName: 'Room',
   paranoid: true,
 })
-export class Rooms extends Model<IRooms> {
+export class Rooms extends Model {
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,

@@ -1,4 +1,4 @@
-import { IApartsPictures } from '../types/scheme_interfaces';
+// import { IApartsPictures } from '../types/scheme_interfaces';
 import { Aparts } from './Aparts';
 import {
   Table,
@@ -17,7 +17,7 @@ import {
   modelName: 'ApartsPictures',
   paranoid: true,
 })
-export class ApartsPictures extends Model<IApartsPictures> {
+export class ApartsPictures extends Model  {
 
   @BelongsTo(() => Aparts)
   declare apart: Aparts;

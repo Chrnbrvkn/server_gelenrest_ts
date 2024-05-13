@@ -1,22 +1,27 @@
-import { generateToken } from "../middleware/jwtUtils";
-import bcrypt from "bcrypt";
-import { Roles, Users, UserRoles } from "../models/models";
-import { Request, Response } from "express";
+import { generateToken } from '../middleware/jwtUtils';
+import bcrypt from 'bcrypt';
+import { Roles } from '../models/Roles';
+import { Users } from '../models/Users';
+import { UserRoles } from '../models/UserRoles';
+import { NextFunction, Request, Response } from 'express';
+import { BadRequestError, InternalServerError } from '../errors/ApiError';
 
 export class AuthController {
-  static async createRole(req: Request, res: Response) {
+  static async createRole(req: Request, res: Response, next: NextFunction) {
     try {
       const { value } = req.body;
 
+      if (!value) {
+        throw new InternalServerError(`Такой роли не существует: ${value}`);
+      }
       const role = await Roles.create({ value });
       return res.json(role);
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async getUserRoles(res: Response) {
+  static async getUserRoles(req: Request, res: Response, next: NextFunction) {
     try {
       const roles = await UserRoles.findAll();
       if (roles.length > 0) {
@@ -24,11 +29,10 @@ export class AuthController {
       }
       return res.json([]);
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
-  static async getRoles(res: Response) {
+  static async getRoles(req: Request, res: Response, next: NextFunction) {
     try {
       const roles = await Roles.findAll();
       if (roles.length > 0) {
@@ -36,20 +40,23 @@ export class AuthController {
       }
       return res.json([]);
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async registration(req: Request, res: Response) {
+  static async registration(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password, name, surname, roles } = req.body;
-
+      if (!email || !password) {
+        throw new BadRequestError(
+          `Email: ${email} and password: ${password} is empty.`
+        );
+      }
       const existingUser = await Users.findOne({ where: { email } });
       if (existingUser) {
-        return res
-          .status(400)
-          .json({ error: "User with this email already exists" });
+        throw new BadRequestError(
+          `The user: ${existingUser} already registered`
+        );
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -62,48 +69,62 @@ export class AuthController {
 
       if (roles && Array.isArray(roles)) {
         const rolesRecords = await Roles.findAll({ where: { value: roles } });
+
         if (rolesRecords.length > 0) {
-          await user.setRoles(rolesRecords);
+          for (const roleRecord of rolesRecords) {
+            await UserRoles.create({
+              userId: user.id,
+              roleId: roleRecord.id,
+            });
+          }
+
+          // await user.setRoles(rolesRecords);
         } else {
-          return res.status(400).json({ error: "Такой роли не существует!" });
+          throw new BadRequestError(
+            `Такой роли не существует: ${JSON.stringify(roles)}`
+          );
         }
+      } else {
+        throw new BadRequestError(`Не валидный формат ролей: ${roles}`);
       }
 
       const token = generateToken(user);
       return res
         .status(201)
-        .json({ message: "User registered successfully", token });
+        .json({ message: 'User registered successfully', token });
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async login(req: Request, res: Response) {
+  static async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
       const user = await Users.findOne({ where: { email } });
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: 'User not found' });
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ error: "Invalid password" });
+        return res.status(401).json({ error: 'Invalid password' });
       }
 
       const token = generateToken(user);
-      return res.json({ message: "Login successful", token });
+      return res.json({ message: 'Login successful', token });
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async validateToken(req: Request, res: Response) {
-    return res.status(200).json({
-      message: "Токен действителен",
-      user: req.user,
-    });
+  static async validateToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      return res.status(200).json({
+        message: 'Токен действителен',
+        user: req.user,
+      });
+    } catch (e) {
+      next(e);
+    }
   }
 }

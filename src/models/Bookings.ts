@@ -1,4 +1,3 @@
-import { IBookings } from '../types/scheme_interfaces';
 import {
   Table,
   Column,
@@ -14,7 +13,7 @@ import {
   modelName: 'Booking',
   paranoid: true,
 })
-export class Bookings extends Model<IBookings> {
+export class Bookings extends Model {
   
   @Column({
     type: DataType.INTEGER,

@@ -1,4 +1,3 @@
-import { IAparts } from '../types/scheme_interfaces';
 import { ApartsPictures } from './ApartsPictures';
 import {
   Table,
@@ -16,7 +15,7 @@ import {
   modelName: 'Apart',
   paranoid: true,
 })
-export class Aparts extends Model<IAparts> {
+export class Aparts extends Model {
   
   @HasMany(() => ApartsPictures, { onDelete: 'CASCADE' })
   declare apartPictures: ApartsPictures[];

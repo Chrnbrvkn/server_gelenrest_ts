@@ -1,21 +1,28 @@
-import { HousesPictures } from "../models/models";
-import fs from "fs";
-import path from "path";
+import { NextFunction, Request, Response } from 'express';
+import { HousesPictures } from '../models/HousesPictures';
+import fs from 'fs';
+import path from 'path';
+import { BadRequestError, NotFoundError } from '../errors/ApiError';
 
 export class HousesPicturesController {
-  static async getAllPictures(req: Request, res: Response) {
+  static async getAllPictures(req: Request, res: Response, next: NextFunction) {
     try {
       const allPictures = await HousesPictures.findAll();
+      if (allPictures.length === 0) {
+        return res.json([]);
+      }
       return res.json(allPictures);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async getPictures(req: Request, res: Response) {
-    const { houseId } = req.params;
+  static async getPictures(req: Request, res: Response, next: NextFunction) {
     try {
+      const { houseId } = req.params;
+      if (!houseId) {
+        throw new BadRequestError(`Не верный ID дома: ${houseId}`);
+      }
       const pictures = await HousesPictures.findAll({
         where: { houseId: houseId },
       });
@@ -25,12 +32,11 @@ export class HousesPicturesController {
 
       return res.json(pictures);
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async getOnePicture(req: Request, res: Response) {
+  static async getOnePicture(req: Request, res: Response, next: NextFunction) {
     const { houseId, imageId } = req.params;
     try {
       const picture = await HousesPictures.findOne({
@@ -40,28 +46,28 @@ export class HousesPicturesController {
         },
       });
       if (!picture) {
-        return res.status(404).json({ error: "Picture not found" });
+        throw new NotFoundError(`Картинка с ID: ${imageId} не найдена.`);
       }
       return res.json(picture);
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async uploadPictures(req: Request, res: Response) {
+  static async uploadPictures(req: Request, res: Response, next: NextFunction) {
     const { houseId } = req.params;
 
     if (!houseId) {
-      return res.status(400).json({ error: "House ID is required" });
+      throw new BadRequestError(`ID: ${houseId} не корректен.`);
     }
 
     if (!req.processedFiles || req.processedFiles.length === 0) {
-      return res.status(400).json({ error: "No processed files found" });
+      throw new NotFoundError('Файлы не найдены.');
     }
 
     try {
       const pictureUrls = await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         req.processedFiles.map(async ({ filename, path }) => {
           const picture = await HousesPictures.create({
             url: path,
@@ -73,30 +79,28 @@ export class HousesPicturesController {
 
       res.json(pictureUrls);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async deletePicture(req: Request, res: Response) {
+  static async deletePicture(req: Request, res: Response, next: NextFunction) {
     try {
       const { houseId, imageId } = req.params;
       if (!imageId) {
-        return res.status(400).json({ error: "ID not specified" });
+        return res.status(400).json({ error: 'ID not specified' });
       }
       const picture = await HousesPictures.findByPk(imageId);
       if (!picture || picture.houseId !== parseInt(houseId, 10)) {
-        return res.status(404).json({ error: "Picture not found" });
+        throw new NotFoundError(`Картинка с ID: ${imageId} не найдена.`);
       }
 
-      const filePath = path.join(__dirname, "..", "..", picture.url);
+      const filePath = path.join(__dirname, '..', '..', picture.url);
       await picture.destroy();
 
       await fs.promises.unlink(filePath);
-      res.json({ message: "Picture deleted successfully" });
+      res.json({ message: 'Picture deleted successfully' });
     } catch (e) {
-      console.error("Error deleting file:", e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 }

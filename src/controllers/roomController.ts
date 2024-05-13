@@ -1,24 +1,29 @@
 // import ApiError from '../error/ApiError';
-import { Rooms, RoomsPictures } from "../models/models";
-import path from "path";
-import fs from "fs";
-import { Request, Response } from "express";
+import { Rooms } from '../models/Rooms';
+import { RoomsPictures } from '../models/RoomsPictures';
+import path from 'path';
+import { NextFunction, Request, Response } from 'express';
+import { BadRequestError, InternalServerError, NotFoundError } from '../errors/ApiError';
+import sequelize from '../db';
+import { deletePicture } from '../services/utils/deletePicture';
 
 export class RoomController {
-  static async getAllRooms(req: Request, res: Response) {
+  static async getAllRooms(req: Request, res: Response, next: NextFunction) {
     try {
       const allRooms = await Rooms.findAll();
+      if (allRooms.length === 0) {
+        return res.json([]);
+      }
       return res.json(allRooms);
     } catch (e) {
-      console.log(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
-  static async getRooms(req: Request, res: Response) {
+  static async getRooms(req: Request, res: Response, next: NextFunction) {
     try {
-      const houseId = req.params.houseId;
+      const {houseId} = req.params;
       if (!houseId) {
-        return res.status(400).json({ error: "houseId is required" });
+        throw new BadRequestError(`Не верный ID дома: ${houseId}`);
       }
       const rooms = await Rooms.findAll({
         where: {
@@ -30,16 +35,15 @@ export class RoomController {
       }
       return res.json(rooms);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async getOneRoom(req: Request, res: Response) {
+  static async getOneRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { houseId, roomId } = req.params;
       if (!roomId) {
-        return res.status(400).json({ error: "ID not specified" });
+        throw new BadRequestError(`Не верный ID комнаты: ${roomId}`);
       }
       const room = await Rooms.findOne({
         where: {
@@ -48,34 +52,32 @@ export class RoomController {
         },
       });
       if (!room) {
-        return res.status(404).json({ error: "Room not found" });
+        throw new NotFoundError(`Комната с ID: ${roomId} не найдена.`);
       }
       return res.json(room);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async createRoom(req: Request, res: Response) {
+  static async createRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { houseId } = req.body;
       if (!houseId) {
-        return res.status(400).json({ error: "House ID is required." });
+        throw new BadRequestError(`Не верный ID дома: ${houseId}`);
       }
       const room = await Rooms.create({ ...req.body });
       return res.json(room);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async updateRoom(req: Request, res: Response) {
+  static async updateRoom(req: Request, res: Response, next: NextFunction) {
     try {
       const { houseId, roomId } = req.params;
       if (!roomId || !houseId) {
-        // throw new ApiError(400, 'Room ID and House ID are required');
+        throw new BadRequestError(`Не верный ID комнаты: ${roomId}. ID дома: ${houseId}`);
       }
 
       const room = await Rooms.findOne({
@@ -85,24 +87,25 @@ export class RoomController {
         },
       });
       if (!room) {
-        return res.status(404).json({ error: "Room not found" });
+        throw new NotFoundError(`Комната с ID: ${roomId} не найдена. ID дома: ${houseId}`);
       }
       await room.update(req.body);
 
       const updatedRoom = await Rooms.findByPk(roomId);
       return res.json(updatedRoom);
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      next(e);
     }
   }
 
-  static async deleteRoom(req: Request, res: Response) {
+  static async deleteRoom(req: Request, res: Response, next: NextFunction) {
+    const { roomId, houseId } = req.params;
+    if (!roomId || !houseId) {
+      throw new BadRequestError(`Не верный ID квартиры: ${roomId}, ID дома: ${houseId}`);
+    }
+    
+    const transaction = await sequelize.transaction();
     try {
-      const { roomId, houseId } = req.params;
-      if (!roomId) {
-        return res.status(400).json({ error: "ID not specified" });
-      }
       const room = await Rooms.findOne({
         where: {
           id: roomId,
@@ -110,34 +113,41 @@ export class RoomController {
         },
       });
       if (!room) {
-        return res.status(404).json({ error: "Room not found" });
+        await transaction.rollback();
+        throw new NotFoundError(`Комната с ID: ${roomId} не найдена. Room: ${room}`);
       }
 
       const pictures = await RoomsPictures.findAll({
-        where: { roomId: roomId },
+        where: { roomId: roomId }, transaction
       });
 
       await Promise.all(
-        pictures.map(async (picture) => {
+        pictures.map(async (picture: RoomsPictures) => {
+          const filename = picture.url.split('/').pop();
+
+          if(!filename){
+            throw new InternalServerError(`Не удалось удалить картинку: ${picture.url}`);
+          }
+
           const filePath = path.join(
             __dirname,
-            "..",
-            "..",
-            "public/uploads/roomsPictures",
-            picture.url.split("/").pop()
+            '..',
+            '..',
+            'public/uploads/roomsPictures',
+            filename
           );
-          await fs.promises
-            .unlink(filePath)
-            .catch((e) => console.error("Error deleting file:", e));
-          await picture.destroy();
+
+          await deletePicture(filePath);
+          await picture.destroy({ transaction});
         })
       );
 
-      await room.destroy();
-      return res.json({ message: "Room deleted" });
+      await room.destroy({ transaction});
+      await transaction.commit();
+      return res.json({ message: 'Room deleted' });
     } catch (e) {
-      console.error(e);
-      return res.status(500).json({ error: e.message });
+      await transaction.rollback();
+      next(e);
     }
   }
 }

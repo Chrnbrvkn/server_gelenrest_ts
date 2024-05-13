@@ -1,4 +1,3 @@
-import { IHousesPictures } from '../types/scheme_interfaces';
 import {
   Table,
   Column,
@@ -17,7 +16,7 @@ import { Houses } from './Houses';
   modelName: 'HousesPictures',
   paranoid: true,
 })
-export class HousesPictures extends Model<IHousesPictures> {
+export class HousesPictures extends Model  {
 
   
   @BelongsTo(() => Houses)

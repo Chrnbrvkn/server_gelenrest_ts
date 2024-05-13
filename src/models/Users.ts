@@ -1,5 +1,3 @@
-// import sequelize from '../db';
-import { IUsers } from '../types/scheme_interfaces';
 import {
   Table,
   Column,
@@ -19,7 +17,8 @@ import { Roles } from './Roles';
   modelName: 'Users',
   paranoid: true,
 })
-export class Users extends Model<IUsers> {
+export class Users extends Model {
+
 
   @BelongsToMany(() => Roles, () => UserRoles)
   declare roles: Roles[];

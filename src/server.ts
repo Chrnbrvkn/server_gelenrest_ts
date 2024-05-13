@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import sequelize from './db';
-import router from './routes';
+import { router } from './routes';
 import cors from 'cors';
+
+import { handleApiError } from './errors/handleApiError';
 
 const PORT = parseInt(process.env.PORT as string) || 8080;
 const app = express();
@@ -17,7 +19,10 @@ const allowedOrigins: string[] = [
 ];
 
 const corsOptions: cors.CorsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error| null, allow?: boolean) => void) => {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -38,6 +43,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.use(express.json());
 app.use('/', router);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+app.use((err: any, req: Request, res: Response) => {
+  console.error(err);
+  handleApiError(err, req, res);
+});
 
 const start = async (): Promise<void> => {
   try {

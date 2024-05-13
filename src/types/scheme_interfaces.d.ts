@@ -1,5 +1,7 @@
+// import { Model } from 'sequelize-typescript';
+
 interface IUsers {
-  id: number;
+  id?: number;
   email: string;
   password: string;
   name?: string | null;
@@ -12,7 +14,7 @@ interface IUserRoles {
 }
 
 interface IRoles {
-  id: number;
+  id?: number;
   value: number;
 }
 
