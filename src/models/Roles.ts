@@ -15,7 +15,7 @@ import { Users } from './Users';
   tableName: 'roles',
   modelName: 'Roles',
 })
-export class Roles extends Model {
+export class Roles extends Model<Roles> {
 
   @BelongsToMany(() => Users, () => UserRoles)
   declare users: Users[];

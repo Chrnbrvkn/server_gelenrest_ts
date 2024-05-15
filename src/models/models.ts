@@ -10,14 +10,14 @@ import { RoomsPictures } from './RoomsPictures';
 import { Bookings } from './Bookings';
 
 export default {
+  Roles,
   Users,
   UserRoles,
-  Roles,
-  Houses,
-  HousesPictures,
-  Aparts,
-  ApartsPictures,
-  Rooms,
   RoomsPictures,
+  Rooms,
+  HousesPictures,
+  Houses,
+  ApartsPictures,
+  Aparts,
   Bookings,
 };

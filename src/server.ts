@@ -1,13 +1,20 @@
 import 'dotenv/config';
+
 import express, { Request, Response, NextFunction } from 'express';
 import sequelize from './db';
 import { router } from './routes';
 import cors from 'cors';
-
 import { handleApiError } from './errors/handleApiError';
 
 const PORT = parseInt(process.env.PORT as string) || 8080;
 const app = express();
+
+
+// app.use((req, res, next) => {
+//   console.log(req.processedFiles); // Тестовый вывод, TypeScript должен распознавать это поле
+//   next();
+// });
+
 
 app.use('/public/uploads', express.static('public/uploads'));
 
@@ -53,7 +60,7 @@ app.use((err: any, req: Request, res: Response) => {
 const start = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    await sequelize.sync( );
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });

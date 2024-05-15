@@ -3,6 +3,26 @@ import fs from 'fs';
 import path from 'path';
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, NotFoundError } from '../errors/ApiError';
+import { JwtPayload } from 'jsonwebtoken';
+
+
+interface IUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface ProcessedFileInfo {
+  filename: string;
+  path: string;
+}
+interface RequestWithFile extends Request{
+  user?: JwtPayload | IUser;
+  file?: Express.Multer.File;
+  files?: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[];
+  processedFiles: null | ProcessedFileInfo[];
+}
+
 
 export class RoomsPicturesController {
   static async getAllPictures(req: Request, res: Response, next: NextFunction) {
@@ -54,7 +74,7 @@ export class RoomsPicturesController {
     }
   }
 
-  static async uploadPictures(req: Request, res: Response, next: NextFunction) {
+  static async uploadPictures(req: RequestWithFile, res: Response, next: NextFunction) {
     const { roomId } = req.params;
     if (!roomId) {
       throw new BadRequestError(`ID: ${roomId} не корректен.`);

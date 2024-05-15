@@ -5,7 +5,10 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
+import { Rooms } from './Rooms';
 
 @Table({
   timestamps: true,
@@ -14,6 +17,10 @@ import {
   paranoid: true,
 })
 export class RoomsPictures extends Model {
+
+  @BelongsTo(() => Rooms)
+  declare room: Rooms;
+  
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -29,6 +36,7 @@ export class RoomsPictures extends Model {
   })
   declare url: string;
 
+  @ForeignKey(() => Rooms)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,

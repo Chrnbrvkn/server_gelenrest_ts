@@ -3,7 +3,26 @@ import sharp from 'sharp';
 import fs from 'fs';
 import util from 'util';
 import path from 'path';
-import { Request,Response, NextFunction } from 'express';
+import {Request, Response, NextFunction } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
+
+interface IUser {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface ProcessedFileInfo {
+  filename: string;
+  path: string;
+}
+interface RequestWithFile extends Request{
+  user?: JwtPayload | IUser;
+  file?: Express.Multer.File;
+  files?: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[];
+  processedFiles: null | ProcessedFileInfo[];
+}
+
 
 const mkdir = util.promisify(fs.mkdir);
 
@@ -11,7 +30,7 @@ const mkdir = util.promisify(fs.mkdir);
 const storage = multer.memoryStorage();
 
 // Фильтр для проверки типов файлов
-const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+const fileFilter = (req: RequestWithFile, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -27,7 +46,7 @@ export const upload = multer({
 });
 
 // Определение пути для сохранения обработанных изображений
-const getUploadPath = (req: Request) => {
+const getUploadPath = (req: RequestWithFile) => {
   const baseUploadPath = 'public/uploads/';
   if (req.path.includes('/house')) return path.join(baseUploadPath, 'housesPictures');
   if (req.path.includes('/apart')) return path.join(baseUploadPath, 'apartsPictures');
@@ -36,7 +55,7 @@ const getUploadPath = (req: Request) => {
 };
 
 // Middleware для обработки и сохранения изображений
-export const processAndSaveImage = async (req: Request, res: Response, next: NextFunction) => {
+export const processAndSaveImage = async (req: RequestWithFile, res: Response, next: NextFunction) => {
   if (!req.files || req.files.length === 0) return next(); // Пропускаем, если файлы не загружены
 
   if(Array.isArray(req.files)){

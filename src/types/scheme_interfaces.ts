@@ -64,6 +64,7 @@ interface IHousesPictures {
 
 interface IRooms {
   id: number;
+  
   name: string;
   address: string;
   price: number;

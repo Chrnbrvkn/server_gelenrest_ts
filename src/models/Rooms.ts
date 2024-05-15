@@ -5,7 +5,10 @@ import {
   DataType,
   CreatedAt,
   UpdatedAt,
+  BelongsTo,
+  ForeignKey
 } from 'sequelize-typescript';
+import { Houses } from './Houses';
 
 @Table({
   timestamps: true,
@@ -14,6 +17,10 @@ import {
   paranoid: true,
 })
 export class Rooms extends Model {
+
+  @BelongsTo(() => Houses)
+  declare house: Houses;
+  
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -100,6 +107,7 @@ export class Rooms extends Model {
   })
   declare level: number;
 
+  @ForeignKey(() => Houses)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,

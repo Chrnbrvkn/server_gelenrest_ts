@@ -6,6 +6,17 @@ import { UserRoles } from '../models/UserRoles';
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError, InternalServerError } from '../errors/ApiError';
 
+
+
+interface IUser {
+  id: number;
+  name: string;
+  email: string;
+}
+interface RequestWithUser extends Request {
+  user?: IUser;
+}
+
 export class AuthController {
   static async createRole(req: Request, res: Response, next: NextFunction) {
     try {
@@ -14,7 +25,9 @@ export class AuthController {
       if (!value) {
         throw new InternalServerError(`Такой роли не существует: ${value}`);
       }
-      const role = await Roles.create({ value });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const role = await Roles.create({ value } as any);
       return res.json(role);
     } catch (e) {
       next(e);
@@ -117,7 +130,7 @@ export class AuthController {
     }
   }
 
-  static async validateToken(req: Request, res: Response, next: NextFunction) {
+  static async validateToken(req: RequestWithUser, res: Response, next: NextFunction) {
     try {
       return res.status(200).json({
         message: 'Токен действителен',
