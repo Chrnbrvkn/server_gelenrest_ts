@@ -6,17 +6,16 @@ import {
   CreatedAt,
   UpdatedAt,
   BelongsToMany,
-} from 'sequelize-typescript';
-import { UserRoles } from './UserRoles';
-import { Users } from './Users';
+} from "sequelize-typescript";
+import { UserRoles } from "./UserRoles";
+import { Users } from "./Users";
 
 @Table({
   timestamps: true,
-  tableName: 'roles',
-  modelName: 'Roles',
+  tableName: "roles",
+  modelName: "Roles",
 })
 export class Roles extends Model<Roles> {
-
   @BelongsToMany(() => Users, () => UserRoles)
   declare users: Users[];
 

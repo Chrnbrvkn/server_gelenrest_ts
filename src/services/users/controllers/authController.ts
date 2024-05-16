@@ -1,12 +1,10 @@
-import { generateToken } from '../middleware/jwtUtils';
-import bcrypt from 'bcrypt';
-import { Roles } from '../models/Roles';
-import { Users } from '../models/Users';
-import { UserRoles } from '../models/UserRoles';
-import { NextFunction, Request, Response } from 'express';
-import { BadRequestError, InternalServerError } from '../errors/ApiError';
-
-
+import { generateToken } from "../../../middleware/jwtUtils";
+import bcrypt from "bcrypt";
+import { Roles } from "../models/Roles";
+import { Users } from "../models/Users";
+import { UserRoles } from "../models/UserRoles";
+import { NextFunction, Request, Response } from "express";
+import { BadRequestError, InternalServerError } from "../../../errors/ApiError";
 
 interface IUser {
   id: number;
@@ -104,7 +102,7 @@ export class AuthController {
       const token = generateToken(user);
       return res
         .status(201)
-        .json({ message: 'User registered successfully', token });
+        .json({ message: "User registered successfully", token });
     } catch (e) {
       next(e);
     }
@@ -115,25 +113,29 @@ export class AuthController {
       const { email, password } = req.body;
       const user = await Users.findOne({ where: { email } });
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: "User not found" });
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Invalid password' });
+        return res.status(401).json({ error: "Invalid password" });
       }
 
       const token = generateToken(user);
-      return res.json({ message: 'Login successful', token });
+      return res.json({ message: "Login successful", token });
     } catch (e) {
       next(e);
     }
   }
 
-  static async validateToken(req: RequestWithUser, res: Response, next: NextFunction) {
+  static async validateToken(
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       return res.status(200).json({
-        message: 'Токен действителен',
+        message: "Токен действителен",
         user: req.user,
       });
     } catch (e) {

@@ -1,6 +1,6 @@
 // import sequelize from '../db';
-import { Users } from './Users';
-import { Roles } from './Roles';
+import { Users } from "./Users";
+import { Roles } from "./Roles";
 import {
   Table,
   Column,
@@ -9,22 +9,21 @@ import {
   CreatedAt,
   UpdatedAt,
   ForeignKey,
-} from 'sequelize-typescript';
+} from "sequelize-typescript";
 
 @Table({
   timestamps: true,
-  tableName: 'userRoles',
-  modelName: 'userRoles',
+  tableName: "userRoles",
+  modelName: "userRoles",
 })
 export class UserRoles extends Model {
-
   @ForeignKey(() => Users)
   @Column({
     type: DataType.INTEGER,
     references: {
       model: Users,
-      key: 'id',
-    },  
+      key: "id",
+    },
   })
   declare userId: number;
 
@@ -33,7 +32,7 @@ export class UserRoles extends Model {
     type: DataType.INTEGER,
     references: {
       model: Roles,
-      key: 'id',
+      key: "id",
     },
   })
   declare roleId: number;

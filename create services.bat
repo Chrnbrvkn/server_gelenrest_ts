@@ -3,7 +3,7 @@
 setlocal enabledelayedexpansion
 for %%F in ("%~dp0%~n0") do set "filename=%%~nF"
 :: Переходим в директорию с вашим локальным репозиторием Git
-cd /d C:\Users\prosh\Desktop\server_gelenrest
+cd /d C:\Users\prosh\Desktop\server_gelenrest_ts
 
 :: Выполняем команды Git
 git add .

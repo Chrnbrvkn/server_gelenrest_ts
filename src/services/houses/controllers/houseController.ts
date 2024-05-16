@@ -1,10 +1,14 @@
-import { join } from 'path';
-import { NextFunction, Request, Response } from 'express';
-import { Houses } from '../models/Houses';
-import { HousesPictures } from '../models/HousesPictures';
-import { BadRequestError, InternalServerError, NotFoundError } from '../errors/ApiError';
-import sequelize from '../db';
-import { deletePicture } from '../services/utils/deletePicture';
+import { join } from "path";
+import { NextFunction, Request, Response } from "express";
+import { Houses } from "../models/Houses";
+import { HousesPictures } from "../models/HousesPictures";
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+} from "../../../errors/ApiError";
+import sequelize from "../../../db/db";
+import { deletePicture } from "../../../utils/deletePicture";
 
 export class HouseController {
   static async getHouses(req: Request, res: Response, next: NextFunction) {
@@ -22,7 +26,7 @@ export class HouseController {
   static async getOneHouse(req: Request, res: Response, next: NextFunction) {
     try {
       const { houseId } = req.params;
-      if (!houseId ) {
+      if (!houseId) {
         throw new BadRequestError(`Не верный ID дома: ${houseId}`);
       }
       const house = await Houses.findByPk(houseId);
@@ -48,7 +52,7 @@ export class HouseController {
     try {
       const { houseId } = req.params;
 
-      if (!houseId ) {
+      if (!houseId) {
         throw new BadRequestError(`Не верный ID дома: ${houseId}`);
       }
       const house = await Houses.findByPk(houseId);
@@ -65,7 +69,7 @@ export class HouseController {
 
   static async deleteHouse(req: Request, res: Response, next: NextFunction) {
     const { houseId } = req.params;
-    if (!houseId ) {
+    if (!houseId) {
       throw new BadRequestError(`Не верный ID дома: ${houseId}`);
     }
     const transaction = await sequelize.transaction();
@@ -83,7 +87,7 @@ export class HouseController {
 
       await Promise.all(
         pictures.map(async (picture: HousesPictures) => {
-          const filename = picture.url.split('/').pop();
+          const filename = picture.url.split("/").pop();
 
           if (!filename) {
             throw new InternalServerError(
@@ -93,21 +97,20 @@ export class HouseController {
 
           const filePath = join(
             __dirname,
-            '..',
-            '..',
-            'public/uploads/housesPictures',
+            "..",
+            "..",
+            "public/uploads/housesPictures",
             filename
           );
 
-
           await deletePicture(filePath);
-          await picture.destroy({ transaction});
+          await picture.destroy({ transaction });
         })
       );
 
-      await house.destroy({ transaction});
+      await house.destroy({ transaction });
       await transaction.commit();
-      return res.json({ message: 'House deleted' });
+      return res.json({ message: "House deleted" });
     } catch (e) {
       await transaction.rollback();
       next(e);

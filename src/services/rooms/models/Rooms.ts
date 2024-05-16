@@ -6,21 +6,20 @@ import {
   CreatedAt,
   UpdatedAt,
   BelongsTo,
-  ForeignKey
-} from 'sequelize-typescript';
-import { Houses } from './Houses';
+  ForeignKey,
+} from "sequelize-typescript";
+import { Houses } from "../../houses/models/Houses";
 
 @Table({
   timestamps: true,
-  tableName: 'rooms',
-  modelName: 'Room',
+  tableName: "rooms",
+  modelName: "Room",
   paranoid: true,
 })
 export class Rooms extends Model {
-
   @BelongsTo(() => Houses)
   declare house: Houses;
-  
+
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -66,22 +65,22 @@ export class Rooms extends Model {
   declare bedroom?: string;
 
   @Column({
-    type: DataType.ENUM('в номере', 'на этаже'),
+    type: DataType.ENUM("в номере", "на этаже"),
     allowNull: false,
   })
-  declare bathroom: 'в номере' | 'на этаже';
+  declare bathroom: "в номере" | "на этаже";
 
   @Column({
-    type: DataType.ENUM('ванна', 'душ'),
+    type: DataType.ENUM("ванна", "душ"),
     allowNull: false,
   })
-  declare bathType: 'ванна' | 'душ';
+  declare bathType: "ванна" | "душ";
 
   @Column({
-    type: DataType.ENUM('в номере', 'отдельно'),
+    type: DataType.ENUM("в номере", "отдельно"),
     allowNull: false,
   })
-  declare meal: 'в номере' | 'отдельно';
+  declare meal: "в номере" | "отдельно";
 
   @Column({
     type: DataType.STRING,

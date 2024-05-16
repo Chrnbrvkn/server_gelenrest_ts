@@ -1,15 +1,14 @@
-import path from 'path';
-import { Aparts } from '../models/Aparts';
-import { ApartsPictures } from '../models/ApartsPictures';
-import { NextFunction, Request, Response } from 'express';
+import path from "path";
+import { Aparts } from "../models/Aparts";
+import { ApartsPictures } from "../models/ApartsPictures";
+import { NextFunction, Request, Response } from "express";
 import {
   BadRequestError,
   InternalServerError,
   NotFoundError,
-} from '../errors/ApiError';
-// import { IApartsPictures } from '../types/scheme_interfaces';
-import sequelize from '../db';
-import { deletePicture } from '../services/utils/deletePicture';
+} from "../../../errors/ApiError";
+import sequelize from "../../../db/db";
+import { deletePicture } from "../../../utils/deletePicture";
 
 export class ApartController {
   static async getAparts(req: Request, res: Response, next: NextFunction) {
@@ -27,7 +26,7 @@ export class ApartController {
   static async getOneApart(req: Request, res: Response, next: NextFunction) {
     try {
       const { apartId } = req.params;
-      if (!apartId ) {
+      if (!apartId) {
         throw new BadRequestError(`Не верный ID квартиры: ${apartId}`);
       }
       const apart = await Aparts.findByPk(apartId);
@@ -69,7 +68,7 @@ export class ApartController {
 
   static async deleteApart(req: Request, res: Response, next: NextFunction) {
     const { apartId } = req.params;
-    if (!apartId ) {
+    if (!apartId) {
       throw new BadRequestError(`Не верный ID квартиры: ${apartId}`);
     }
 
@@ -89,7 +88,7 @@ export class ApartController {
 
       await Promise.all(
         pictures.map(async (picture: ApartsPictures) => {
-          const filename = picture.url.split('/').pop();
+          const filename = picture.url.split("/").pop();
 
           if (!filename) {
             throw new InternalServerError(
@@ -99,9 +98,9 @@ export class ApartController {
 
           const filePath = path.join(
             __dirname,
-            '..',
-            '..',
-            'public/uploads/apartsPictures',
+            "..",
+            "..",
+            "public/uploads/apartsPictures",
             filename
           );
           await deletePicture(filePath);
@@ -110,7 +109,7 @@ export class ApartController {
       );
       await apart.destroy({ transaction });
       await transaction.commit();
-      return res.json({ message: 'Apart deleted' });
+      return res.json({ message: "Apart deleted" });
     } catch (e) {
       await transaction.rollback();
       next(e);

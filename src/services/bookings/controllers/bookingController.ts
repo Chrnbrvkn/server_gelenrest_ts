@@ -1,7 +1,7 @@
-import { BadRequestError, NotFoundError } from '../errors/ApiError';
-import { Bookings } from '../models/Bookings';
-import { sendToTelegramBot } from './tgBotController';
-import { NextFunction, Request, Response } from 'express';
+import { BadRequestError, NotFoundError } from "../../../errors/ApiError";
+import { Bookings } from "../models/Bookings";
+import { sendToTelegramBot } from "../../telegram/controllers/tgBotController";
+import { NextFunction, Request, Response } from "express";
 
 export class BookingController {
   static async getReservedDates(
@@ -12,14 +12,14 @@ export class BookingController {
     try {
       const bookings = await Bookings.findAll({
         attributes: [
-          'houseId',
-          'roomId',
-          'apartId',
-          'checkInDate',
-          'checkOutDate',
+          "houseId",
+          "roomId",
+          "apartId",
+          "checkInDate",
+          "checkOutDate",
         ],
         where: {
-          status: 'Подтверждён',
+          status: "Подтверждён",
         },
       });
 
@@ -70,9 +70,9 @@ export class BookingController {
       const bookingInfo = `Новая бронь ${booking.id}:
       \nИмя: ${req.body.guestName}
       \nНомер: ${
-  req.body.houseName === ''
+  req.body.houseName === ""
     ? req.body.itemName
-    : req.body.houseName + ' ' + req.body.itemName
+    : req.body.houseName + " " + req.body.itemName
 }
       \nАдрес: ${req.body.address}
       \nТелефон: ${req.body.guestContact}
@@ -118,7 +118,7 @@ export class BookingController {
         throw new NotFoundError(`Бронирование с ID: ${bookingId} не найдена.`);
       }
       await booking.destroy();
-      return res.json({ message: 'Booking deleted' });
+      return res.json({ message: "Booking deleted" });
     } catch (e) {
       next(e);
     }

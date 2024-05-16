@@ -1,4 +1,3 @@
-
 import {
   Table,
   Column,
@@ -7,24 +6,23 @@ import {
   CreatedAt,
   UpdatedAt,
   HasMany,
-} from 'sequelize-typescript';
-import { HousesPictures } from './HousesPictures';
-import { Rooms } from './Rooms';
+} from "sequelize-typescript";
+import { HousesPictures } from "./HousesPictures";
+import { Rooms } from "../../rooms/models/Rooms";
 
 @Table({
   timestamps: true,
-  tableName: 'houses',
-  modelName: 'House',
+  tableName: "houses",
+  modelName: "House",
   paranoid: true,
 })
 export class Houses extends Model {
-  
-  @HasMany(() => HousesPictures, { onDelete: 'CASCADE' })
+  @HasMany(() => HousesPictures, { onDelete: "CASCADE" })
   declare housesPictures: HousesPictures[];
 
-  @HasMany(() => Rooms, { onDelete: 'CASCADE' })
+  @HasMany(() => Rooms, { onDelete: "CASCADE" })
   declare housesRooms: Rooms[];
-  
+
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -242,6 +240,4 @@ export class Houses extends Model {
 
   @UpdatedAt
   declare updatedAt: Date;
-
-
 }

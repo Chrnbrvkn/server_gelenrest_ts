@@ -1,22 +1,21 @@
-import { NextFunction, Request, Response } from 'express';
-import { Roles } from '../models/Roles';
-import { Users } from '../models/Users';
-import { ForbiddenError, NotFoundError } from '../errors/ApiError';
+import { NextFunction, Request, Response } from "express";
+import { Roles } from "../services/users/models/Roles";
+import { Users } from "../services/users/models/Users";
+import { ForbiddenError, NotFoundError } from "../errors/ApiError";
 
 enum AccessRoles {
-  USER = 'user', 
-  ADMIN = 'admin', 
-  MAIN_ADMIN = 'main_admin', 
-  DEVELOPER = 'developer'
+  USER = "user",
+  ADMIN = "admin",
+  MAIN_ADMIN = "main_admin",
+  DEVELOPER = "developer",
 }
 
 const roleAccessLevels: Record<AccessRoles, number> = {
   user: 1,
   admin: 2,
   main_admin: 3,
-  developer: 4
+  developer: 4,
 };
-
 
 interface IUser {
   id: number;
@@ -28,8 +27,6 @@ interface RequestWithUser extends Request {
 }
 
 export const checkRole = (requiredRoles: AccessRoles[]) => {
-
-  
   return async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       let userWithRoles;
@@ -47,7 +44,9 @@ export const checkRole = (requiredRoles: AccessRoles[]) => {
       }
 
       const userMaxAccessLevel = Math.max(
-        ...userWithRoles.roles.map((role) => roleAccessLevels[role.value as AccessRoles] || 0)
+        ...userWithRoles.roles.map(
+          (role) => roleAccessLevels[role.value as AccessRoles] || 0
+        )
       );
       const requiredMaxAccessLevel = Math.max(
         ...requiredRoles.map((role) => roleAccessLevels[role] || 0)
@@ -56,11 +55,10 @@ export const checkRole = (requiredRoles: AccessRoles[]) => {
       if (userMaxAccessLevel >= requiredMaxAccessLevel) {
         next();
       } else {
-        throw new ForbiddenError('Недостаточно прав для выполнения запроса');
+        throw new ForbiddenError("Недостаточно прав для выполнения запроса");
       }
     } catch (e) {
       next(e);
     }
   };
 };
-

@@ -1,10 +1,9 @@
-import { NextFunction, Request, Response } from 'express';
-import { HousesPictures } from '../models/HousesPictures';
-import fs from 'fs';
-import path from 'path';
-import { BadRequestError, NotFoundError } from '../errors/ApiError';
-import { JwtPayload } from 'jsonwebtoken';
-
+import { NextFunction, Request, Response } from "express";
+import { HousesPictures } from "../models/HousesPictures";
+import fs from "fs";
+import path from "path";
+import { BadRequestError, NotFoundError } from "../../../errors/ApiError";
+import { JwtPayload } from "jsonwebtoken";
 
 interface IUser {
   id: number;
@@ -16,13 +15,14 @@ interface ProcessedFileInfo {
   filename: string;
   path: string;
 }
-interface RequestWithFile extends Request{
+interface RequestWithFile extends Request {
   user?: JwtPayload | IUser;
   file?: Express.Multer.File;
-  files?: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[];
+  files?:
+    | { [fieldname: string]: Express.Multer.File[] }
+    | Express.Multer.File[];
   processedFiles: null | ProcessedFileInfo[];
 }
-
 
 export class HousesPicturesController {
   static async getAllPictures(req: Request, res: Response, next: NextFunction) {
@@ -74,7 +74,11 @@ export class HousesPicturesController {
     }
   }
 
-  static async uploadPictures(req: RequestWithFile, res: Response, next: NextFunction) {
+  static async uploadPictures(
+    req: RequestWithFile,
+    res: Response,
+    next: NextFunction
+  ) {
     const { houseId } = req.params;
 
     if (!houseId) {
@@ -82,7 +86,7 @@ export class HousesPicturesController {
     }
 
     if (!req.processedFiles || req.processedFiles.length === 0) {
-      throw new NotFoundError('Файлы не найдены.');
+      throw new NotFoundError("Файлы не найдены.");
     }
 
     try {
@@ -107,18 +111,18 @@ export class HousesPicturesController {
     try {
       const { houseId, imageId } = req.params;
       if (!imageId) {
-        return res.status(400).json({ error: 'ID not specified' });
+        return res.status(400).json({ error: "ID not specified" });
       }
       const picture = await HousesPictures.findByPk(imageId);
       if (!picture || picture.houseId !== parseInt(houseId, 10)) {
         throw new NotFoundError(`Картинка с ID: ${imageId} не найдена.`);
       }
 
-      const filePath = path.join(__dirname, '..', '..', picture.url);
+      const filePath = path.join(__dirname, "..", "..", picture.url);
       await picture.destroy();
 
       await fs.promises.unlink(filePath);
-      res.json({ message: 'Picture deleted successfully' });
+      res.json({ message: "Picture deleted successfully" });
     } catch (e) {
       next(e);
     }

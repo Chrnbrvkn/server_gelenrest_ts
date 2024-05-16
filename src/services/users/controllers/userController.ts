@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import { Users } from '../models/Users';
-import { BadRequestError, NotFoundError } from '../errors/ApiError';
+import { NextFunction, Request, Response } from "express";
+import { Users } from "../models/Users";
+import { BadRequestError, NotFoundError } from "../../../errors/ApiError";
 
 export class UserController {
   static async getUsers(req: Request, res: Response, next: NextFunction) {
@@ -20,11 +20,11 @@ export class UserController {
       const { userId } = req.params;
       if (!userId) {
         throw new BadRequestError(`Не верный ID пользователя: ${userId}`);
-
       }
       const user = await Users.findByPk(userId);
       if (!user) {
-        throw new NotFoundError(`Пользователь с ID: ${userId} не найдена.`);      }
+        throw new NotFoundError(`Пользователь с ID: ${userId} не найдена.`);
+      }
       return res.json(user);
     } catch (e) {
       next(e);
@@ -49,7 +49,8 @@ export class UserController {
       }
       const user = await Users.findByPk(userId);
       if (!user) {
-        throw new NotFoundError(`Пользователь с ID: ${userId} не найдена.`);      }
+        throw new NotFoundError(`Пользователь с ID: ${userId} не найдена.`);
+      }
       const email = req.body.email;
       const password = req.body.password;
       const name = req.body.name;
@@ -81,7 +82,7 @@ export class UserController {
         throw new NotFoundError(`Пользователь с ID: ${userId} не найдена.`);
       }
       await user.destroy();
-      return res.json({ message: 'User deleted' });
+      return res.json({ message: "User deleted" });
     } catch (e) {
       next(e);
     }
@@ -89,7 +90,7 @@ export class UserController {
 
   static async test(req: Request, res: Response, next: NextFunction) {
     try {
-      return res.json('HIII IM BORNING!!!');
+      return res.json("HIII IM BORNING!!!");
     } catch (e) {
       next(e);
     }

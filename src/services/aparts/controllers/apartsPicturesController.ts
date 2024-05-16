@@ -1,10 +1,9 @@
-import { RoomsPictures } from '../models/RoomsPictures';
-import fs from 'fs';
-import path from 'path';
-import { NextFunction, Request, Response } from 'express';
-import { BadRequestError, NotFoundError } from '../errors/ApiError';
-import { JwtPayload } from 'jsonwebtoken';
-
+import { ApartsPictures } from "../models/ApartsPictures";
+import fs from "fs";
+import path from "path";
+import { NextFunction, Request, Response } from "express";
+import { BadRequestError, NotFoundError } from "../../../errors/ApiError";
+import { JwtPayload } from "jsonwebtoken";
 
 interface IUser {
   id: number;
@@ -16,18 +15,19 @@ interface ProcessedFileInfo {
   filename: string;
   path: string;
 }
-interface RequestWithFile extends Request{
+interface RequestWithFile extends Request {
   user?: JwtPayload | IUser;
   file?: Express.Multer.File;
-  files?: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[];
+  files?:
+    | { [fieldname: string]: Express.Multer.File[] }
+    | Express.Multer.File[];
   processedFiles: null | ProcessedFileInfo[];
 }
 
-
-export class RoomsPicturesController {
+export class ApartsPicturesController {
   static async getAllPictures(req: Request, res: Response, next: NextFunction) {
     try {
-      const allPictures = await RoomsPictures.findAll();
+      const allPictures = await ApartsPictures.findAll();
       if (allPictures.length === 0) {
         return res.json([]);
       }
@@ -39,12 +39,12 @@ export class RoomsPicturesController {
 
   static async getPictures(req: Request, res: Response, next: NextFunction) {
     try {
-      const { roomId } = req.params;
-      if (!roomId) {
-        throw new BadRequestError(`Не верный ID комнаты: ${roomId}`);
+      const { apartId } = req.params;
+      if (!apartId) {
+        throw new BadRequestError(`Не верный ID квартиры: ${apartId}`);
       }
-      const pictures = await RoomsPictures.findAll({
-        where: { roomId: roomId },
+      const pictures = await ApartsPictures.findAll({
+        where: { apartId: apartId },
       });
       if (pictures.length === 0) {
         return res.json([]);
@@ -57,12 +57,12 @@ export class RoomsPicturesController {
   }
 
   static async getOnePicture(req: Request, res: Response, next: NextFunction) {
-    const { roomId, imageId } = req.params;
+    const { apartId, imageId } = req.params;
     try {
-      const picture = await RoomsPictures.findOne({
+      const picture = await ApartsPictures.findOne({
         where: {
           id: imageId,
-          roomId: roomId,
+          apartId: apartId,
         },
       });
       if (!picture) {
@@ -74,22 +74,28 @@ export class RoomsPicturesController {
     }
   }
 
-  static async uploadPictures(req: RequestWithFile, res: Response, next: NextFunction) {
-    const { roomId } = req.params;
-    if (!roomId) {
-      throw new BadRequestError(`ID: ${roomId} не корректен.`);
+  static async uploadPictures(
+    req: RequestWithFile,
+    res: Response,
+    next: NextFunction
+  ) {
+    const { apartId } = req.params;
+
+    if (!apartId) {
+      throw new BadRequestError(`ID: ${apartId} не корректен.`);
     }
 
     if (!req.processedFiles || req.processedFiles.length === 0) {
-      throw new NotFoundError('Файлы не найдены.');
+      throw new NotFoundError("Файлы не найдены.");
     }
+
     try {
       const pictureUrls = await Promise.all(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         req.processedFiles.map(async ({ filename, path }) => {
-          const picture = await RoomsPictures.create({
+          const picture = await ApartsPictures.create({
             url: path,
-            roomId: roomId,
+            apartId: apartId,
           });
           return picture.url;
         })
@@ -103,20 +109,20 @@ export class RoomsPicturesController {
 
   static async deletePicture(req: Request, res: Response, next: NextFunction) {
     try {
-      const { roomId, imageId } = req.params;
+      const { apartId, imageId } = req.params;
       if (!imageId) {
         throw new BadRequestError(`ID картинки: ${imageId} не корректен.`);
       }
-      const picture = await RoomsPictures.findByPk(imageId);
-      if (!picture || picture.roomId !== parseInt(roomId, 10)) {
+      const picture = await ApartsPictures.findByPk(imageId);
+      if (!picture || picture.apartId !== parseInt(apartId, 10)) {
         throw new NotFoundError(`Картинка с ID: ${imageId} не найдена.`);
       }
 
-      const filePath = path.join(__dirname, '..', '..', picture.url);
+      const filePath = path.join(__dirname, "..", "..", picture.url);
       await picture.destroy();
 
       await fs.promises.unlink(filePath);
-      res.json({ message: 'Picture deleted successfully' });
+      res.json({ message: "Picture deleted successfully" });
     } catch (e) {
       next(e);
     }
